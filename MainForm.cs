@@ -26,7 +26,7 @@ namespace AttendanceSystem
 
         private void MainForm_Activated(object sender, EventArgs e)
         {
-            if (!loggedIn) 
+            if (!loggedIn)
             {
                 //Open Login Form
                 LoginForm newLoginForm = new LoginForm();
@@ -68,7 +68,7 @@ namespace AttendanceSystem
                 // Ten wiersz kodu wczytuje dane do tabeli 'dataSet1.Classes' . Możesz go przenieść lub usunąć.
                 this.classesTableAdapter.Fill(this.dataSet1.Classes);
 
-                classesBindingSource.Filter = "UserID = '" + UserID.ToString() + "'"; 
+                classesBindingSource.Filter = "UserID = '" + UserID.ToString() + "'";
 
             }
             else
@@ -100,7 +100,7 @@ namespace AttendanceSystem
         {
             //Check if records exists, if yes load them for edit and if not create
             //record for each student and load for edit.
-            
+
             AttendanceRecordsTableAdapter ada = new AttendanceRecordsTableAdapter();
             DataTable dt = ada.GetDataBy((int)metroComboBox_Classes.SelectedValue, dateTimePicker1.Text);
             DataTable dt_new = ada.GetDataBy((int)metroComboBox_Classes.SelectedValue,
@@ -117,14 +117,14 @@ namespace AttendanceSystem
                 //Create record for each student.
                 //Get the class students list.
                 StudentsTableAdapter students_ada = new StudentsTableAdapter();
-                
+
                 DataTable dt_Students = students_ada.GetDataByClassID((int)metroComboBox_Classes.SelectedValue);
 
-                foreach(DataRow row in dt_Students.Rows)
+                foreach (DataRow row in dt_Students.Rows)
                 {
                     //Insert a new record for this student.
                     ada.InsertQuery((int)row[0], (int)metroComboBox_Classes.SelectedValue,
-                                    dateTimePicker1.Text, "", row[1].ToString(), 
+                                    dateTimePicker1.Text, "", row[1].ToString(),
                                     metroComboBox_Classes.Text);
                 }
 
@@ -134,6 +134,100 @@ namespace AttendanceSystem
             }
 
 
+        }
+
+        private void metroButton1_Click(object sender, EventArgs e)
+        {
+
+            AttendanceRecordsTableAdapter ada = new AttendanceRecordsTableAdapter();
+
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.Cells[1].Value != null)
+                {
+                    ada.UpdateQuery(row.Cells[1].Value.ToString(), row.Cells[0].Value.ToString(), (int)metroComboBox_Classes.SelectedValue, dateTimePicker1.Text);
+                }
+            }
+
+            DataTable dt_new = ada.GetDataBy((int)metroComboBox_Classes.SelectedValue,
+                                                   dateTimePicker1.Text);
+            dataGridView1.DataSource = dt_new;
+        }
+
+        private void metroButton2_Click(object sender, EventArgs e)
+        {
+            AttendanceRecordsTableAdapter ada = new AttendanceRecordsTableAdapter();
+
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                if (row.Cells[1].Value != null)
+                {
+                    ada.UpdateQuery("", row.Cells[0].Value.ToString(), (int)metroComboBox_Classes.SelectedValue, dateTimePicker1.Text);
+                }
+            }
+
+            DataTable dt_new = ada.GetDataBy((int)metroComboBox_Classes.SelectedValue,
+                                                   dateTimePicker1.Text);
+            dataGridView1.DataSource = dt_new;
+        }
+
+        private void metroButton6_Click(object sender, EventArgs e)
+        {
+
+            metroListView1.Items.Clear();
+            //Get students
+            StudentsTableAdapter students_ada = new StudentsTableAdapter();
+            DataTable dt_Students = students_ada.GetDataByClassID((int)metroComboBox_Classes.SelectedValue);
+
+            //Get Reports
+            AttendanceRecordsTableAdapter ada = new AttendanceRecordsTableAdapter();
+
+            int? p = 0;
+            int? A = 0;
+            int? L = 0;
+            int? E = 0;
+
+
+
+            //loop through students and get the values
+            foreach (DataRow row in dt_Students.Rows)
+            {
+                //Presence count
+
+              //  int? B = ada.GetStatus(11, "Karol", "Present");
+
+                p = ada.GetStatus((decimal)dateTimePicker2.Value.Month, row[1].ToString(), "Present");
+
+
+
+                //Absence count
+                A = ada.GetStatus((decimal)dateTimePicker2.Value.Month, row[1].ToString(), "Absent");
+
+
+
+                //Late
+                L = ada.GetStatus((decimal)dateTimePicker2.Value.Month, row[1].ToString(), "Late");
+
+
+                //Excuses
+                E = ada.GetStatus((decimal)dateTimePicker2.Value.Month, row[1].ToString(), "Excused");
+
+
+
+
+                ListViewItem litem = new ListViewItem();
+                 litem.Text = row[1].ToString();
+                 litem.SubItems.Add(p.ToString());
+                 litem.SubItems.Add(A.ToString());
+                 litem.SubItems.Add(L.ToString());
+                 litem.SubItems.Add(E.ToString());
+                 metroListView1.Items.Add(litem);
+            }
+
+
+            //add to listview
         }
     }
 }
