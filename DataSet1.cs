@@ -7,12 +7,9 @@
     }
 }
 
-namespace AttendanceSystem.DataSet1TableAdapters
-{
-    partial class AttendanceRecordsTableAdapter
-    {
-    }
-
+namespace AttendanceSystem.DataSet1TableAdapters {
+    
+    
     public partial class UsersTableAdapter {
     }
 }
